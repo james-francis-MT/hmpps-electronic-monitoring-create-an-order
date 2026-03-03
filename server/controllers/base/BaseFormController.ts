@@ -24,7 +24,7 @@ export default class BaseFormController {
       const entity = config.getEntity(req.order!)
       const errors = req.flash('validationErrors') as unknown as ValidationResult
       const formDataArray = req.flash('formData')
-      const formData = formDataArray[0] as TFormData | undefined
+      const formData = formDataArray[0] as TFormData
 
       const viewModel = config.constructViewModel(entity, formData, errors)
 
@@ -47,7 +47,7 @@ export default class BaseFormController {
       const parsed = config.formDataSchema.parse(req.body)
       const { action, ...formData } = parsed
 
-      const result = await config.updateService(res.locals.user.token, orderId, formData as Omit<TFormData, 'action'>)
+      const result = await config.updateService(res.locals.user.token, orderId, formData as unknown as TFormData)
 
       if (isValidationResult(result)) {
         req.flash('formData', formData)

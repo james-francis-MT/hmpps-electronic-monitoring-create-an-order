@@ -22,7 +22,9 @@ describe('BaseFormController', () => {
     it('renders the template with entity data when there are no errors', async () => {
       // Arrange
       const controller = new BaseFormController(mockTaskListService)
-      const mockOrder = getMockOrder({ contactDetails: { contactNumber: '01234567890' } })
+      const mockOrder = getMockOrder({
+        contactDetails: { contactNumber: '01234567890', phoneNumberAvailable: true },
+      })
       const req = createMockRequest({
         order: mockOrder,
         flash: jest.fn().mockReturnValue([]),
@@ -52,7 +54,9 @@ describe('BaseFormController', () => {
     it('renders the template using flash form data when validation errors are present', async () => {
       // Arrange
       const controller = new BaseFormController(mockTaskListService)
-      const mockOrder = getMockOrder({ contactDetails: { contactNumber: '01234567890' } })
+      const mockOrder = getMockOrder({
+        contactDetails: { contactNumber: '01234567890', phoneNumberAvailable: true },
+      })
       const validationErrors = [{ field: 'contactNumber', error: 'Invalid phone number' }]
       const flashFormData = { contactNumber: 'invalid' }
 

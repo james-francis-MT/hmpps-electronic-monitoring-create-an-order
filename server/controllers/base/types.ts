@@ -1,4 +1,3 @@
-import { ZodSchema } from 'zod'
 import { Order } from '../../models/Order'
 import { ValidationResult } from '../../models/Validation'
 import { Page } from '../../services/taskListService'
@@ -18,9 +17,17 @@ export type ViewConfig<TEntity, TFormData, TViewModel> = {
   getEntity: (order: Order) => TEntity
 
   /**
-   * Constructs the view model from entity data, form data, and validation errors
+   * Constructs the view model from entity data, form data, and validation errors.
+   * Note: formData may be undefined when there are no validation errors.
    */
-  constructViewModel: (entity: TEntity, formData: TFormData | undefined, errors: ValidationResult) => TViewModel
+  constructViewModel: (entity: TEntity, formData: TFormData, errors: ValidationResult) => TViewModel
+}
+
+/**
+ * A Zod-like schema that can parse form data
+ */
+export type FormDataParser<TOutput> = {
+  parse: (data: unknown) => TOutput
 }
 
 /**
@@ -28,18 +35,15 @@ export type ViewConfig<TEntity, TFormData, TViewModel> = {
  */
 export type UpdateConfig<TFormData, TResult> = {
   /**
-   * Zod schema to parse and validate form data
+   * Zod schema to parse and validate form data.
+   * Must output an object with an 'action' field.
    */
-  formDataSchema: ZodSchema<TFormData & { action: string }>
+  formDataSchema: FormDataParser<TFormData & { action: string }>
 
   /**
    * Service method to call with the parsed form data
    */
-  updateService: (
-    accessToken: string,
-    orderId: string,
-    data: Omit<TFormData, 'action'>,
-  ) => Promise<TResult | ValidationResult>
+  updateService: (accessToken: string, orderId: string, data: TFormData) => Promise<TResult | ValidationResult>
 
   /**
    * Path to redirect to when there are validation errors
@@ -61,4 +65,4 @@ export type UpdateConfig<TFormData, TResult> = {
 /**
  * Extract form data type from an update config (excluding action field)
  */
-export type FormDataFromConfig<T> = T extends UpdateConfig<infer TFormData, unknown> ? Omit<TFormData, 'action'> : never
+export type FormDataFromConfig<T> = T extends UpdateConfig<infer TFormData, unknown> ? TFormData : never
